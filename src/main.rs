@@ -1,3 +1,10 @@
+use crate::{substitution::SubstitutionKey, wonderland::WONDERLAND};
+
+mod substitution;
+mod wonderland;
+
 fn main() {
-    println!("Hello, world!");
+    let key = SubstitutionKey::random();
+
+    println!("Hello, world! {}", key.encode(WONDERLAND));
 }
