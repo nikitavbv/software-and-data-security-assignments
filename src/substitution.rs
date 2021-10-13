@@ -1,11 +1,16 @@
-use std::ascii::AsciiExt;
-
 use rand::thread_rng;
 use rand::prelude::*;
+use rayon::prelude::*;
 use crate::wonderland::{ALPHABET, ENGLISH_DICTIONARY};
 
+#[derive(Debug, Clone)]
 pub struct SubstitutionKey {
     character_map: Vec<char>,
+}
+
+#[derive(Debug, Clone)]
+pub struct PossibleSolution {
+    key: SubstitutionKey,
 }
 
 impl SubstitutionKey {
@@ -72,6 +77,74 @@ impl SubstitutionKey {
         }
     }
 }
+
+impl PossibleSolution {
+
+    pub fn score(&self, encoded_data: &str) -> usize {
+        count_english_words(&self.key.decode(encoded_data))
+    }
+
+    pub fn with_random_change(&self) -> Self {
+        let mut new_key = self.key.character_map.clone();
+        
+        let total_changes = rand::thread_rng().gen_range(0..10);
+        for _ in 0..total_changes {
+            let a = rand::thread_rng().gen_range(0..new_key.len());
+            let b = rand::thread_rng().gen_range(0..new_key.len());
+            let tmp = new_key.get(a).unwrap().clone();
+            new_key[a] = new_key[b];
+            new_key[b] = tmp;
+        }
+
+        Self {
+            key: SubstitutionKey { 
+                character_map: 
+                new_key 
+            }
+        }
+    }
+}
+
+pub fn guess_key(encoded_data: &str) {
+    let generation_size = 10000;
+    let top_solutions = 500;
+    let random_solutions = 100;
+
+    let mut solutions = Vec::new();
+    for _ in 0..generation_size {
+        solutions.push(PossibleSolution {
+            key: SubstitutionKey::random(),
+        });
+    }
+
+    loop {
+        let mut scored_solutions: Vec<(PossibleSolution, usize)> = solutions.par_iter()
+            .map(|solution| (solution.clone(), solution.score(encoded_data)))
+            .collect();
+        scored_solutions.sort_by(|a, b| b.1.cmp(&a.1));
+        println!("best score: {}", scored_solutions.get(0).unwrap().1);
+        println!("{}", scored_solutions.get(0).unwrap().0.key.decode(encoded_data));
+    
+        let best_solutions = &scored_solutions[0..top_solutions];
+        let mut new_solutions = Vec::new();
+        for i in 0..top_solutions {
+            new_solutions.push(scored_solutions[i].0.clone());
+        }
+
+        for _ in 0..random_solutions {
+            new_solutions.push(PossibleSolution {
+                key: SubstitutionKey::random(),
+            });
+        }
+
+        while new_solutions.len() < generation_size {
+            let random_element = best_solutions.choose(&mut rand::thread_rng()).unwrap().0.clone();
+            new_solutions.push(random_element.with_random_change());
+        }
+
+        solutions = new_solutions;
+    }
+} 
 
 fn count_english_words(sentence: &str) -> usize {
     sentence.split(" ").filter(|word| is_english_word(word)).count()
