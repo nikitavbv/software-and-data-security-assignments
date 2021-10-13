@@ -1,6 +1,6 @@
 use rand::thread_rng;
 use rand::prelude::*;
-use crate::wonderland::ALPHABET;
+use crate::wonderland::{ALPHABET, ENGLISH_DICTIONARY};
 
 pub struct SubstitutionKey {
     character_map: Vec<char>,
@@ -44,5 +44,35 @@ impl SubstitutionKey {
         } else {
             result.to_ascii_lowercase()
         }
+    }
+}
+
+
+
+fn count_english_words(sentence: &str) -> usize {
+    sentence.split(" ").filter(|word| is_english_word(word)).count()
+}
+
+fn is_english_word(word: &str) -> bool {
+    ENGLISH_DICTIONARY.contains(&word.to_ascii_lowercase())
+}
+
+#[cfg(test)]
+pub mod tests {
+    use super::*;
+
+    #[test]
+    fn cookie_is_a_word() {
+        assert!(is_english_word("cookie"))
+    }
+
+    #[test]
+    fn taalei_is_not_a_word() {
+        assert!(!is_english_word("taalei"));
+    }
+
+    #[test]
+    fn count_words_in_sentence() {
+        assert_eq!(count_english_words("Hello my dear friend do you want a taalei"), 8)
     }
 }
