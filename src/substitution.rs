@@ -146,7 +146,7 @@ pub fn guess_key(encoded_data: &str) {
     }
 } 
 
-fn count_english_words(sentence: &str) -> usize {
+pub fn count_english_words(sentence: &str) -> usize {
     sentence.split(" ").filter(|word| is_english_word(word)).count()
 }
 

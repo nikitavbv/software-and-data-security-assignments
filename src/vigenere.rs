@@ -1,10 +1,15 @@
-use rand::Rng;
-
-use crate::wonderland::ALPHABET;
+use rand::{Rng, prelude::SliceRandom};
+use rayon::prelude::*;
+use crate::{substitution::count_english_words, wonderland::ALPHABET};
 
 #[derive(Clone, Debug)]
 pub struct VigenereKey {
-    key: Vec<usize>,
+    pub key: Vec<usize>,
+}
+
+#[derive(Debug, Clone)]
+pub struct PossibleSolution {
+    key: VigenereKey,
 }
 
 impl VigenereKey {
@@ -16,7 +21,10 @@ impl VigenereKey {
     }
 
     pub fn random() -> Self {
-        let key_len = rand::thread_rng().gen_range(3..16);
+        Self::random_with_len(rand::thread_rng().gen_range(3..16))
+    }
+
+    pub fn random_with_len(key_len: usize) -> Self {
         let mut key = Vec::new();
         for _ in 0..key_len {
             key.push(rand::thread_rng().gen_range(0..ALPHABET.len()));
@@ -88,7 +96,30 @@ impl VigenereKey {
     }
 }
 
-pub fn guess_key_length(encoded_data: &str) {
+impl PossibleSolution {
+
+    pub fn score(&self, encoded_data: &str) -> usize {
+        count_english_words(&self.key.decode(encoded_data))
+    }
+
+    pub fn with_random_change(&self) -> Self {
+        let mut new_key = self.key.key.clone();
+
+        let index_to_change = rand::thread_rng().gen_range(0..new_key.len());
+        new_key[index_to_change] = (new_key[index_to_change] + rand::thread_rng().gen_range(0..ALPHABET.len())) % ALPHABET.len();
+
+        Self {
+            key: VigenereKey {
+                key: new_key,
+            }
+        }
+    }
+}
+
+pub fn guess_key_length(encoded_data: &str) -> usize {
+    let mut best_score = 0;
+    let mut best_key_length = 0;
+
     for key_length in 3..16 {
         let mut coincidences = 0;
         for index in 0..encoded_data.len() {
@@ -99,7 +130,56 @@ pub fn guess_key_length(encoded_data: &str) {
             }
         }
 
+        if coincidences > best_score {
+            best_score = coincidences;
+            best_key_length = key_length;
+        }
+
         println!("key length: {}, coincidences: {}", key_length, coincidences);
+    }
+
+    best_key_length
+}
+
+pub fn guess_key(encoded_data: &str, key_length: usize) {
+    let generation_size = 1000;
+    let top_solutions = 50;
+    let random_solutions = 10;
+
+    let mut solutions = Vec::new();
+    for _ in 0..generation_size {
+        solutions.push(PossibleSolution {
+            key: VigenereKey::random_with_len(key_length),
+        });
+    }
+
+    loop {
+        let mut scored_solutions: Vec<(PossibleSolution, usize)> = solutions.par_iter()
+            .map(|solution| (solution.clone(), solution.score(encoded_data)))
+            .collect();
+     
+        scored_solutions.sort_by(|a, b| b.1.cmp(&a.1));
+        println!("best score: {}", scored_solutions.get(0).unwrap().1);
+        println!("{}", scored_solutions.get(0).unwrap().0.key.decode(encoded_data));
+    
+        let best_solutions = &scored_solutions[0..top_solutions];
+        let mut new_solutions = Vec::new();
+        for i in 0..top_solutions {
+            new_solutions.push(scored_solutions[i].0.clone());
+        }
+
+        for _ in 0..random_solutions {
+            new_solutions.push(PossibleSolution {
+                key: VigenereKey::random_with_len(key_length),
+            });
+        }
+
+        while new_solutions.len() < generation_size {
+            let random_element = best_solutions.choose(&mut rand::thread_rng()).unwrap().0.clone();
+            new_solutions.push(random_element.with_random_change());
+        }
+
+        solutions = new_solutions;
     }
 }
 
