@@ -1,6 +1,6 @@
 use rand::{Rng, prelude::SliceRandom};
 use rayon::prelude::*;
-use crate::{substitution::count_english_words, wonderland::ALPHABET};
+use crate::{substitution::count_english_words, wonderland::COMBINED_ALPHABET};
 
 #[derive(Clone, Debug)]
 pub struct VigenereKey {
@@ -27,7 +27,7 @@ impl VigenereKey {
     pub fn random_with_len(key_len: usize) -> Self {
         let mut key = Vec::new();
         for _ in 0..key_len {
-            key.push(rand::thread_rng().gen_range(0..ALPHABET.len()));
+            key.push(rand::thread_rng().gen_range(0..COMBINED_ALPHABET.len()));
         }
 
         Self {
@@ -58,18 +58,18 @@ impl VigenereKey {
 
         let key = *self.key.get(index % self.key.len()).unwrap();
         let uppercase_char = c.to_ascii_uppercase();
-        let index = match ALPHABET.iter().position(|t| t == &uppercase_char) {
+        let index = match COMBINED_ALPHABET.iter().position(|t| t == &uppercase_char) {
             Some(v) => v,
             None => {
                 panic!("failed to find character in the alphabet: {}", c);
             }
         };
 
-        let new_index = (index + key) % ALPHABET.len();
+        let new_index = (index + key) % COMBINED_ALPHABET.len();
         if c.is_uppercase() {
-            ALPHABET[new_index].to_ascii_uppercase()
+            COMBINED_ALPHABET[new_index].to_ascii_uppercase()
         } else {
-            ALPHABET[new_index].to_ascii_lowercase()
+            COMBINED_ALPHABET[new_index].to_ascii_lowercase()
         }
     }
 
@@ -80,18 +80,18 @@ impl VigenereKey {
 
         let key = *self.key.get(index % self.key.len()).unwrap();
         let uppercase_char = encoded_c.to_ascii_uppercase();
-        let index = match ALPHABET.iter().position(|t| t == &uppercase_char) {
+        let index = match COMBINED_ALPHABET.iter().position(|t| t == &uppercase_char) {
             Some(v) => v,
             None => {
                 panic!("failed to find character in the alphabet: {}", encoded_c);
             }
         };
 
-        let new_index = (ALPHABET.len() + index - key) % ALPHABET.len();
+        let new_index = (COMBINED_ALPHABET.len() + index - key) % COMBINED_ALPHABET.len();
         if encoded_c.is_uppercase() {
-            ALPHABET[new_index].to_ascii_uppercase()
+            COMBINED_ALPHABET[new_index].to_ascii_uppercase()
         } else {
-            ALPHABET[new_index].to_ascii_lowercase()
+            COMBINED_ALPHABET[new_index].to_ascii_lowercase()
         }
     }
 }
@@ -106,7 +106,7 @@ impl PossibleSolution {
         let mut new_key = self.key.key.clone();
 
         let index_to_change = rand::thread_rng().gen_range(0..new_key.len());
-        new_key[index_to_change] = (new_key[index_to_change] + rand::thread_rng().gen_range(0..ALPHABET.len())) % ALPHABET.len();
+        new_key[index_to_change] = (new_key[index_to_change] + rand::thread_rng().gen_range(0..COMBINED_ALPHABET.len())) % COMBINED_ALPHABET.len();
 
         Self {
             key: VigenereKey {
@@ -120,12 +120,14 @@ pub fn guess_key_length(encoded_data: &str) -> usize {
     let mut best_score = 0;
     let mut best_key_length = 0;
 
-    for key_length in 3..16 {
+    for key_length in 1..100 {
         let mut coincidences = 0;
-        for index in 0..encoded_data.len() {
-            let index_with_offset = (index + key_length) % encoded_data.len();
-            if encoded_data.chars().nth(index).unwrap().to_ascii_lowercase() == 
-                encoded_data.chars().nth(index_with_offset).unwrap().to_ascii_lowercase() {
+        for index in 0..encoded_data.chars().count() {
+            let index_with_offset = (index + key_length) % encoded_data.chars().count();
+            let index_char = encoded_data.chars().nth(index).unwrap();
+            let offset_char = encoded_data.chars().nth(index_with_offset).unwrap();
+
+            if index_char.to_ascii_lowercase() == offset_char.to_ascii_lowercase() {
                 coincidences += 1;
             }
         }
@@ -193,5 +195,10 @@ pub mod tests {
         let encoded = key.encode("Hello my dear friend");
         let decoded = key.decode(&encoded);
         assert_eq!(decoded, "Hello my dear friend");
+    }
+
+    #[test]
+    fn what_is_char() {
+        assert_eq!('е', "Привет мир!".chars().nth(4).unwrap());
     }
 }

@@ -1,7 +1,7 @@
 use rand::thread_rng;
 use rand::prelude::*;
 use rayon::prelude::*;
-use crate::wonderland::{ALPHABET, ENGLISH_DICTIONARY};
+use crate::wonderland::{COMBINED_ALPHABET, ENGLISH_DICTIONARY, RUSSIAN_DICTIONARY, UKRAINIAN_DICTIONARY};
 
 #[derive(Debug, Clone)]
 pub struct SubstitutionKey {
@@ -16,7 +16,7 @@ pub struct PossibleSolution {
 impl SubstitutionKey {
 
     pub fn random() -> Self {
-        let mut character_map = ALPHABET.clone();
+        let mut character_map = COMBINED_ALPHABET.clone();
         character_map.shuffle(&mut thread_rng());
 
         Self {
@@ -41,12 +41,8 @@ impl SubstitutionKey {
     }
 
     fn encode_char(&self, c: char) -> char {
-        if c == ' ' {
-            return c;
-        }
-
-        let uppercase_char = c.to_ascii_uppercase();
-        let index = match ALPHABET.iter().position(|t| t == &uppercase_char) {
+        let uppercase_char = c.to_uppercase().to_string().chars().nth(0).unwrap();
+        let index = match COMBINED_ALPHABET.iter().position(|t| t == &uppercase_char) {
             Some(v) => v,
             None => {
                 panic!("failed to find character in the alphabet: {}", c);
@@ -55,25 +51,28 @@ impl SubstitutionKey {
         let result = *self.character_map.get(index).unwrap();
 
         if c.is_uppercase() {
-            result.to_ascii_uppercase()
+            result.to_uppercase().to_string().chars().nth(0).unwrap()
         } else {
-            result.to_ascii_lowercase()
+            result.to_lowercase().to_string().chars().nth(0).unwrap()
         }
     }
 
     fn decode_char(&self, encoded_c: char) -> char {
         if encoded_c == ' ' {
-            return encoded_c;
+            return ' ';
         }
 
-        let uppercase_char = encoded_c.to_ascii_uppercase();
-        let index = self.character_map.iter().position(|t| t == &uppercase_char).unwrap();
-        let result = *ALPHABET.get(index).unwrap();
+        let uppercase_char = encoded_c.to_uppercase().to_string().chars().nth(0).unwrap();
+        let index = match self.character_map.iter().position(|t| t == &uppercase_char) {
+            Some(v) => v,
+            None => panic!("Failed to find character \"{}\" in alphabet", uppercase_char),
+        };
+        let result = *COMBINED_ALPHABET.get(index).unwrap();
 
         if encoded_c.is_uppercase() {
-            result.to_ascii_uppercase()
+            result.to_uppercase().to_string().chars().nth(0).unwrap()
         } else {
-            result.to_ascii_lowercase()
+            result.to_lowercase().to_string().chars().nth(0).unwrap()
         }
     }
 }
@@ -81,7 +80,11 @@ impl SubstitutionKey {
 impl PossibleSolution {
 
     pub fn score(&self, encoded_data: &str) -> usize {
-        count_english_words(&self.key.decode(encoded_data))
+        let decoded = &self.key.decode(encoded_data);
+
+        count_russian_words(&decoded) * 10 +
+            count_ukrainian_words(&decoded) * 10 +
+            count_english_words(&decoded)
     }
 
     pub fn with_random_change(&self) -> Self {
@@ -150,8 +153,24 @@ pub fn count_english_words(sentence: &str) -> usize {
     sentence.split(" ").filter(|word| is_english_word(word)).count()
 }
 
+pub fn count_russian_words(sentence: &str) -> usize {
+    sentence.split(" ").filter(|word| is_russian_word(word)).count()
+}
+
 fn is_english_word(word: &str) -> bool {
     ENGLISH_DICTIONARY.contains(&word.to_ascii_lowercase())
+}
+
+fn is_russian_word(word: &str) -> bool {
+    RUSSIAN_DICTIONARY.contains(&word.to_lowercase())
+}
+
+pub fn count_ukrainian_words(sentence: &str) -> usize {
+    sentence.split(" ").filter(|word| is_ukrainian_word(word)).count()
+}
+
+fn is_ukrainian_word(word: &str) -> bool {
+    UKRAINIAN_DICTIONARY.contains(&word.to_lowercase())
 }
 
 #[cfg(test)]
