@@ -10,7 +10,35 @@ mod vigenere;
 mod wonderland;
 
 fn main() {
-    task2()
+    // task2()
+    task2_1()
+}
+
+fn task2_1() {
+    let text = fs::read_to_string("./tasks/task2_2.txt").unwrap();
+
+    let mut new_text = Vec::new();
+    let mut index = 0;
+    while index < text.len() {
+        let hex = u8::from_str_radix(&text[index..index+2], 16).unwrap();
+        index += 2;
+
+        new_text.push(hex as char);
+    }
+
+    let text = new_text;
+
+    for offset in 0..=255 {
+        let mut new_text = Vec::new();
+
+        for char in &text {
+            let t = (*char as u8 ^ offset) as u8 as char;
+            new_text.push(t);
+        }
+
+        let new_text: String = new_text.iter().collect();
+        println!("new text is: {:?}\n\n", new_text);
+    }
 }
 
 fn task2() {
