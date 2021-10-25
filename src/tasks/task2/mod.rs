@@ -1,7 +1,7 @@
 use std::fs;
 
-fn task2() {
-    let text = fs::read_to_string("./tasks/task2.txt").unwrap();
+pub fn run() {
+    let text = fs::read_to_string("tasks/task2/input").unwrap();
     let mut bits = Vec::new();
 
     for char in text.chars() {
@@ -24,7 +24,7 @@ fn task2() {
     }
 
     let res = base64::decode(&bytes).unwrap();
-    println!("result:\n{}", String::from_utf8_lossy(&res));
+    fs::write("tasks/task2/output", &res);
 }
 
 // TODO: move this somewhere

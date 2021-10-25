@@ -1,7 +1,7 @@
 use std::fs;
 
 pub fn run() {
-    let text = fs::read_to_string("./input").unwrap();
+    let text = fs::read_to_string("tasks/task1/input").unwrap();
     let mut result = Vec::new();
     let mut index = 0;
 
@@ -13,5 +13,5 @@ pub fn run() {
         index = index + 4;
     }
 
-    println!("result is: {}", result.iter().collect::<String>().replace("!", " "));
+    fs::write("tasks/task1/output", result.iter().collect::<String>().replace("!", " "));
 }
