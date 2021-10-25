@@ -116,33 +116,6 @@ impl PossibleSolution {
     }
 }
 
-pub fn guess_key_length(encoded_data: &str) -> usize {
-    let mut best_score = 0;
-    let mut best_key_length = 0;
-
-    for key_length in 1..100 {
-        let mut coincidences = 0;
-        for index in 0..encoded_data.chars().count() {
-            let index_with_offset = (index + key_length) % encoded_data.chars().count();
-            let index_char = encoded_data.chars().nth(index).unwrap();
-            let offset_char = encoded_data.chars().nth(index_with_offset).unwrap();
-
-            if index_char.to_ascii_lowercase() == offset_char.to_ascii_lowercase() {
-                coincidences += 1;
-            }
-        }
-
-        if coincidences > best_score {
-            best_score = coincidences;
-            best_key_length = key_length;
-        }
-
-        println!("key length: {}, coincidences: {}", key_length, coincidences);
-    }
-
-    best_key_length
-}
-
 pub fn guess_key(encoded_data: &str, key_length: usize) {
     let generation_size = 1000;
     let top_solutions = 50;
