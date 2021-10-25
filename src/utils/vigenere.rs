@@ -1,6 +1,6 @@
 use rand::{Rng, prelude::SliceRandom};
 use rayon::prelude::*;
-use crate::utils::{substitution::count_english_words, wonderland::COMBINED_ALPHABET};
+use crate::utils::{substitution::count_english_words, dictionaries::COMBINED_ALPHABET};
 
 #[derive(Clone, Debug)]
 pub struct VigenereKey {

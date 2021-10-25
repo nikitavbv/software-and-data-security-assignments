@@ -1,3 +1,3 @@
+pub mod dictionaries;
 mod substitution;
 mod vigenere;
-mod wonderland;

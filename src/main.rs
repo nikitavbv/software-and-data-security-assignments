@@ -19,5 +19,10 @@ fn main() {
         tasks::task2::run();
     }
 
+    if !Path::new("tasks/task3/output").exists() {
+        info!("Running task3");
+        tasks::task3::run();
+    }
+
     info!("Finished running tasks");
 }

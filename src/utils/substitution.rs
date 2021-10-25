@@ -1,7 +1,7 @@
 use rand::thread_rng;
 use rand::prelude::*;
 use rayon::prelude::*;
-use crate::utils::wonderland::{COMBINED_ALPHABET, ENGLISH_DICTIONARY, RUSSIAN_DICTIONARY, UKRAINIAN_DICTIONARY};
+use crate::utils::dictionaries::{COMBINED_ALPHABET, ENGLISH_DICTIONARY, RUSSIAN_DICTIONARY, UKRAINIAN_DICTIONARY};
 
 #[derive(Debug, Clone)]
 pub struct SubstitutionKey {

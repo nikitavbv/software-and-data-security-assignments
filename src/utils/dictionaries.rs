@@ -80,3 +80,19 @@ fn load_ukrainian_words() -> HashSet<String> {
 
     result
 }
+
+pub fn count_english_words(sentence: &str) -> usize {
+    sentence.split(" ").filter(|word| is_english_word(word)).count()
+}
+
+pub fn count_russian_words(sentence: &str) -> usize {
+    sentence.split(" ").filter(|word| is_russian_word(word)).count()
+}
+
+fn is_english_word(word: &str) -> bool {
+    ENGLISH_DICTIONARY.contains(&word.to_ascii_lowercase())
+}
+
+fn is_russian_word(word: &str) -> bool {
+    RUSSIAN_DICTIONARY.contains(&word.to_lowercase())
+}
