@@ -13,7 +13,7 @@ pub fn run() {
     info!("guessed key length as: {}", key_length);
 
     let result = guess_key(&input, key_length);
-    fs::write("tasks/task4/output", result);
+    fs::write("tasks/task4/output", result).unwrap();
 }
 
 #[derive(Clone, Debug)]
@@ -140,7 +140,7 @@ pub fn guess_key(encoded_data: &[u8], key_length: usize) -> String {
     let mut best_score = 0;
     let mut best_solution = None;
 
-    while current_iteration - highscore_iteration < 128 {
+    while current_iteration - highscore_iteration < 512 {
         current_iteration += 1;
         let mut scored_solutions: Vec<(PossibleSolution, usize)> = solutions.par_iter()
             .map(|solution| (solution.clone(), solution.score(encoded_data)))
