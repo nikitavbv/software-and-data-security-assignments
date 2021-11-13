@@ -2,8 +2,8 @@ package main
 
 import (
 	"net/http"
-	"passowrd-storage/handlers"
-	"passowrd-storage/server"
+	"password-storage/handlers"
+	"password-storage/server"
 )
 
 func runHandler() {
