@@ -8,7 +8,10 @@ use log::{info, debug};
 pub fn run() {
     let input = fs::read_to_string("tasks/task4/input").unwrap().replace("\n", "");
     let input = base64::decode(&input).unwrap();
+    println!("decoded as: {:?}", input);
 
+    let input = "UMUPLYRXOYRCKTYYPDYZTOUYDZHYJYUNTOMYTOLTKAOHOKZCMKAVZDYBRORPTHQLSERUOERMKZGQJOIDJUDNDZATUVOTTLMQBOWNMERQTDTUFKZCMTAZMEOJJJOXMERKJHACMTAZATIZOEPPJKIJJNOCFEPLFBUNQHHPPKYYKQAZKTOTIKZNXPGQZQAZKTOTIZYNIUISZIAELMKSJOYUYYTHNEIEOESULOXLUEYGBEUGJLHAJTGGOEOSMJHNFJALFBOHOKAGPTIHKNMKTOUUUMUQUDATUEIRBKYUQTWKJKZNLDRZBLTJJJIDJYSULJARKHKUKBISBLTOJRATIOITHYULFBITOVHRZIAXFDRNIORLZEYUUJGEBEYLNMYCZDITKUXSJEJCFEUGJJOTQEZNORPNUDPNQIAYPEDYPDYTJAIGJYUZBLTJJYYNTMSEJYFNKHOTJARNLHHRXDUPZIALZEDUYAOSBBITKKYLXKZNQEYKKZTOKHWCOLKURTXSKKAGZEPLSYHTMKRKJIIQZDTNHDYXMEIRMROGJYUMHMDNZIOTQEKURTXSKKAGZEPLSYHTMKRKJIIQZDTNROAUYLOTIMDQJYQXZDPUMYMYPYRQNYFNUYUJJEBEOMDNIYUOHYYYJHAOQDRKKZRRJEPCFNRKJUHSJOIRQYDZBKZURKDNNEOYBTKYPEJCMKOAJORKTKJLFIOQHYPNBTAVZEUOBTKKBOWSBKOSKZUOZIHQSLIJJMSURHYZJJZUKOAYKNIYKKZNHMITBTRKBOPNUYPNTTPOKKZNKKZNLKZCFNYTKKQNUYGQJKZNXYDNJYYMEZRJJJOXMERKJVOSJIOSIQAGTZYNZIOYSMOHQDTHMEDWJKIULNOTBCALFBJNTOGSJKZNEEYYKUIXLEUNLNHNMYUOMWHHOOQNUYGQJKZLZJZLOLATSEHQKTAYPYRZJYDNQDTHBTKYKYFGJRRUFEWNTHAXFAHHODUPZMXUMKXUFEOTIMUNQIHGPAACFKATIKIZBTOTIKZNKKZNLORUKMLLFBUUQKZNLEOHIEOHEDRHXOTLMIRKLEAHUYXCZYTGUYXCZYTIUYXCZYTCVJOEBKOHE";
+    let input: Vec<u8> = input.bytes().into_iter().collect();
     let key_length = guess_key_length(&input);
     info!("guessed key length as: {}", key_length);
 
@@ -23,7 +26,7 @@ pub struct VigenereKey {
 
 #[derive(Debug, Clone)]
 pub struct PossibleSolution {
-    key: VigenereKey,
+    pub key: VigenereKey,
 }
 
 impl VigenereKey {
@@ -100,7 +103,7 @@ pub fn guess_key_length(encoded_data: &[u8]) -> usize {
     let mut best_score = 0;
     let mut best_key_length = 0;
 
-    for key_length in 1..100 {
+    for key_length in 1..20 {
         let mut coincidences = 0;
         for index in 0..encoded_data.len() {
             let index_with_offset = (index + key_length) % encoded_data.len();
@@ -117,7 +120,7 @@ pub fn guess_key_length(encoded_data: &[u8]) -> usize {
             best_key_length = key_length;
         }
 
-        debug!("key length: {}, coincidences: {}", key_length, coincidences);
+        info!("key length: {}, coincidences: {}", key_length, coincidences);
     }
 
     best_key_length
@@ -153,6 +156,7 @@ pub fn guess_key(encoded_data: &[u8], key_length: usize) -> String {
             highscore_iteration = current_iteration;
             best_solution = Some(scored_solutions.get(0).unwrap().0.key.decode(encoded_data));
             info!("best solution yet: {}", best_solution.as_ref().unwrap());
+            info!("Best key: {:?}", scored_solutions.get(0).unwrap().0.key.key);
         }
 
         let best_solutions = &scored_solutions[0..top_solutions];

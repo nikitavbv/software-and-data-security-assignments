@@ -13,6 +13,7 @@ pub fn run() {
     for key in 0..=255 {
         let mut result = Vec::new();
         for i in 0..decoded.len() {
+            info!("element = {} and result is {} and is {}", decoded[i] as u8, decoded[i] as u8 ^ key, (decoded[i] as u8 ^ key) as char);
             result.push((decoded[i] as u8 ^ key));
         }
 
