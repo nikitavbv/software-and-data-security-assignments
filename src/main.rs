@@ -210,7 +210,7 @@ fn generate_ngrams(ngram_size: usize) {
     }
 
     info!("loading");
-    let shakespeare = std::fs::read_to_string("shakespeare.txt").unwrap().to_uppercase();
+    let shakespeare = std::fs::read_to_string("../data/shakespeare.txt").unwrap().to_uppercase();
     info!("filtering");
     let filtered: String = shakespeare.chars().filter(|c| c.is_alphabetic()).collect();
     info!("counting");

@@ -1,9 +1,5 @@
-/tasks/*/output
-
 .idea
-
 /target
 
-src/words.txt
-src/words_ru.txt
-src/words_ua.txt
+data
+tasks/*/output
