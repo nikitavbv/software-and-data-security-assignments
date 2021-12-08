@@ -6,6 +6,8 @@ use rand::prelude::*;
 use log::info;
 use indicatif::ProgressIterator;
 
+pub mod dictionaries;
+
 pub trait GeneticAlgorithmSolution {
     type OriginalType;
     type EncodedType;

@@ -13,9 +13,7 @@ mod utils;
 fn main() {
     env_logger::Builder::from_env(Env::default().default_filter_or("info")).init();
 
-    run();
-
-    /*if !Path::new("tasks/task1/output").exists() {
+    if !Path::new("tasks/task1/output").exists() {
         info!("Running task1");
         tasks::task1::run();
     }
@@ -33,7 +31,12 @@ fn main() {
     if !Path::new("tasks/task4/output").exists() {
         info!("Running task4");
         tasks::task4::run();
-    }*/
+    }
+
+    if !Path::new("tasks/task5/output").exists() {
+        info!("Running task5");
+        tasks::task5::run();
+    }
 
     info!("Finished running tasks");
 }
@@ -145,15 +148,15 @@ fn randomly_change(solution: &Solution) -> Solution {
     let mut key = solution.key.clone();
 
     //for _ in 0..3 {
-        let key_to_change = (0..key.len()).choose(&mut rand::thread_rng()).unwrap();
-        let mut key_to_change = key.get_mut(key_to_change).unwrap();
+    let key_to_change = (0..key.len()).choose(&mut rand::thread_rng()).unwrap();
+    let mut key_to_change = key.get_mut(key_to_change).unwrap();
 
-        let index_to_swap = (0..26).choose(&mut rand::thread_rng()).unwrap();
-        let index_to_swap_with = (0..26).choose(&mut rand::thread_rng()).unwrap();
+    let index_to_swap = (0..26).choose(&mut rand::thread_rng()).unwrap();
+    let index_to_swap_with = (0..26).choose(&mut rand::thread_rng()).unwrap();
 
-        let t = key_to_change.alphabet[index_to_swap_with];
-        key_to_change.alphabet[index_to_swap_with] = key_to_change.alphabet[index_to_swap];
-        key_to_change.alphabet[index_to_swap] = t;
+    let t = key_to_change.alphabet[index_to_swap_with];
+    key_to_change.alphabet[index_to_swap_with] = key_to_change.alphabet[index_to_swap];
+    key_to_change.alphabet[index_to_swap] = t;
     //}
 
     Solution {
