@@ -7,6 +7,7 @@ use log::info;
 use indicatif::ProgressIterator;
 
 pub mod dictionaries;
+pub mod words;
 
 pub trait GeneticAlgorithmSolution {
     type OriginalType;
