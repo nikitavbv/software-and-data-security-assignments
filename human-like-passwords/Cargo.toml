@@ -8,4 +8,9 @@ edition = "2021"
 [dependencies]
 rand = "0.8.4"
 lazy_static = "1.4.0"
+sha1 = "0.6.0"
+indicatif = "0.16.2"
+base64 = "0.13.0"
+hex = "0.4.3"
+rust-argon2 = "0.8.3"
 utils = { path = "../utils" }
