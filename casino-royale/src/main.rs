@@ -2,6 +2,7 @@
 
 use std::time::UNIX_EPOCH;
 use chrono::Utc;
+use indicatif::ProgressIterator;
 use mersenne_twister::{MersenneTwister, MT19937};
 use rand::{Rng, SeedableRng};
 use serde::Deserialize;
@@ -26,11 +27,31 @@ fn main() {
     create_account(player_id);
 
     // lcg_to_the_moon(player_id);
-    mersenne_twister_to_the_moon(player_id);
+    // mersenne_twister_to_the_moon(player_id);
+    better_mersenne_twister_to_the_moon(player_id);
+}
+
+fn better_mersenne_twister_to_the_moon(player_id: u32) {
+    println!("Cracking better Mersenne Twister 19937");
+
+    let mut state = Vec::new();
+    for i in (0..624).progress() {
+        state.push(make_bet_better_mt(player_id, 1, 0).real_number as u32);
+    }
+
+    let mut rng: MT19937 = MT19937::recover(&state);
+    let mut money = 100;
+    while money < 1_000_000 {
+        let next = rng.gen::<u32>();
+        println!("next is {}", next);
+        let res = make_bet_better_mt(player_id, money, next);
+        money = res.account.money;
+        println!("res is: {}, money is {}", res.message, money);
+    }
 }
 
 fn mersenne_twister_to_the_moon(player_id: u32) {
-    println!("Cracking Mersenne Twister 19937 while knowning the seed");
+    println!("Cracking Mersenne Twister 19937 while knowing the seed");
 
     let s0 = make_bet_mt(player_id, 1, 0).real_number;
     println!("s0 is {}", s0);
@@ -113,6 +134,19 @@ fn egcd(a: i64, b: i64) -> (i64, i64, i64) {
 fn create_account(player_id: u32) {
     reqwest::blocking::get(format!("http://95.217.177.249/casino/createacc?id={}", player_id)).unwrap();
 }
+
+fn make_bet_better_mt(player_id: u32, amount_of_money: u32, number: u32) -> PlayResponse {
+    let res = reqwest::blocking::get(format!("http://95.217.177.249/casino/playBetterMt?id={}&bet={}&number={}", player_id, amount_of_money, number))
+        .unwrap()
+        .text()
+        .unwrap();
+
+    match serde_json::from_str(&res) {
+        Ok(v) => v,
+        Err(err) => panic!("Failed to deserialize response: {} {:?}", &res, err),
+    }
+}
+
 
 fn make_bet_mt(player_id: u32, amount_of_money: u32, number: u32) -> PlayResponse {
     let res = reqwest::blocking::get(format!("http://95.217.177.249/casino/playMt?id={}&bet={}&number={}", player_id, amount_of_money, number))
