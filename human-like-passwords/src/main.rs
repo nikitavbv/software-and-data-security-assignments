@@ -27,6 +27,27 @@ fn main() {
     if !Path::new("output/strong_hashes").exists() {
         generate_strong_hashes();
     }
+
+    // try_argon2_bruteforce();
+}
+
+fn try_argon2_bruteforce() {
+    println!("Trying to bruteforce argon2, lol.");
+    let mut hashes: Vec<String> = fs::read_to_string("strongHash.csv").unwrap().lines().map(|v| v.to_string().replace("\n", "").replace("\"", "")).collect();
+
+    let mut attempts = 0;
+    let mut success = 0;
+    for password in COMMON_PASSWORDS.iter().progress() {
+        println!("progress: {}/{}", success, attempts);
+
+        for hash in hashes.clone() {
+            attempts += 1;
+            if argon2::verify_encoded(&hash, password.as_bytes()).unwrap() {
+                success += 1;
+                hashes = hashes.iter().filter(|h| h != &&hash).map(|v| v.to_string()).collect();
+            }
+        }
+    }
 }
 
 fn generate_weak_hashes() {
