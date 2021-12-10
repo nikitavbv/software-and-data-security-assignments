@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "@google-cloud/kms": "^2.10.0",
+    "@google-cloud/storage": "^5.16.1",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "raw-body": "^2.4.2",
+    "uuid": "^8.3.2"
+  },
+  "name": "secure-web-app-storage",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "\\",
+  "license": "ISC",
+  "description": ""
+}
