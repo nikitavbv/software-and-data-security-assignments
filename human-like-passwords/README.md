@@ -42,7 +42,7 @@ fully.
 
 Because strong hashes use salt, I have to check each hash separately.
 
-I was able to crack only around a thousand of passwords after checking against top 10 passwords.
+I was able to crack only around 1600 passwords after checking against top 10 passwords.
 I don't think it is possible to try some combined or trully random passwords. Even with efficient implementation it
 is going to take too long.
 
